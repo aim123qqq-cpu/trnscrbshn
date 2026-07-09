@@ -31,4 +31,5 @@ python app.py
 - `WHISPER_MODEL` - локальная модель faster-whisper, по умолчанию `small`.
 - `TRANSCRIBE_BACKEND` - `local`, `openai` или `auto`, по умолчанию `auto`.
 
-Для локального режима нужен установленный `ffmpeg`. Для API-режима `ffmpeg` желателен, но не обязателен для `mp3`, `mp4`, `mpeg`, `mpga`, `m4a`, `wav`, `webm`, `ogg`, `flac`.
+Для локального режима сервис использует системный `ffmpeg` или бинарь из `imageio-ffmpeg`.
+Для API-режима нужны активные OpenAI API credits/billing. Если OpenAI-сводка недоступна, сервис все равно сохранит транскрипт и fallback-протокол.

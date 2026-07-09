@@ -77,8 +77,22 @@ def safe_filename(name: str) -> str:
     return cleaned or "upload.bin"
 
 
-def extract_audio(input_path: Path, job_dir: Path) -> Path | None:
+def find_ffmpeg() -> str | None:
     ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg:
+        return ffmpeg
+    try:
+        import imageio_ffmpeg
+    except ImportError:
+        return None
+    try:
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
+def extract_audio(input_path: Path, job_dir: Path) -> Path | None:
+    ffmpeg = find_ffmpeg()
     if not ffmpeg:
         return None
     output_path = job_dir / "audio.wav"
@@ -222,11 +236,12 @@ def read_url(request: urllib.request.Request) -> str:
         raise RuntimeError(f"OpenAI API error {exc.code}: {details}") from exc
 
 
-def fallback_report(transcript: str) -> str:
+def fallback_report(transcript: str, note: str | None = None) -> str:
+    summary_note = note or "Сводка не создана: не найден `OPENAI_API_KEY` или API-запрос не выполнен."
     return (
         "# Протокол встречи\n\n"
         "## Краткое резюме\n\n"
-        "Сводка не создана: не найден `OPENAI_API_KEY` или API-запрос не выполнен.\n\n"
+        f"{summary_note}\n\n"
         "## Договоренности\n\n"
         "- не указано\n\n"
         "## Задачи\n\n"
@@ -311,7 +326,13 @@ def process_job(job_id: str, upload_path: Path) -> None:
         transcript_path.write_text(transcript, encoding="utf-8")
 
         update_job(job_id, progress="Creating meeting report")
-        report = summarize_transcript(transcript)
+        try:
+            report = summarize_transcript(transcript)
+        except Exception as exc:
+            report = fallback_report(
+                transcript,
+                note=f"Сводка OpenAI не создана: {exc}",
+            )
         report_path = output_dir / "meeting_report.md"
         report_path.write_text(report, encoding="utf-8")
         docx_path = output_dir / "meeting_report.docx"
