@@ -45,3 +45,15 @@ python app.py
 3. После деплоя откройте URL Render-сервиса.
 
 Для онлайн-режима по умолчанию выбран `OpenAI Audio API`, потому что локальный `faster-whisper` на облачном CPU может быть медленным и тяжелым.
+
+## Бесплатный full online deploy на Hugging Face Spaces
+
+Если Render просит оплату, используйте Hugging Face Spaces:
+
+1. Создайте Space на Hugging Face.
+2. Выберите SDK: `Docker`.
+3. Подключите или импортируйте репозиторий `aim123qqq-cpu/trnscrbshn`.
+4. Для бесплатного режима оставьте `DEFAULT_BACKEND=local`.
+5. Если нужна OpenAI-сводка и API-транскрибация, добавьте secret `OPENAI_API_KEY` в Settings Space.
+
+Dockerfile по умолчанию слушает порт `7860`, как ожидает Hugging Face Spaces. На бесплатном CPU первая обработка может идти долго, потому что модель Whisper скачивается и работает без GPU.
