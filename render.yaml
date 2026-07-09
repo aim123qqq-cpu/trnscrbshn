@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: trnscrbshn
+    runtime: docker
+    repo: https://github.com/aim123qqq-cpu/trnscrbshn
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: DEFAULT_BACKEND
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_SUMMARY_MODEL
+        value: gpt-5-mini
+      - key: OPENAI_TRANSCRIBE_MODEL
+        value: gpt-4o-mini-transcribe

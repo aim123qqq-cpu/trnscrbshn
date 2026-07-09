@@ -35,3 +35,13 @@ python app.py
 
 Для локального режима сервис использует системный `ffmpeg` или бинарь из `imageio-ffmpeg`.
 Для API-режима нужны активные OpenAI API credits/billing. Если OpenAI-сводка недоступна, сервис все равно сохранит транскрипт и fallback-протокол.
+
+## Full online deploy на Render
+
+В репозитории есть `Dockerfile` и `render.yaml`.
+
+1. Откройте Render Dashboard и создайте Blueprint из репозитория `aim123qqq-cpu/trnscrbshn`.
+2. Укажите secret `OPENAI_API_KEY`.
+3. После деплоя откройте URL Render-сервиса.
+
+Для онлайн-режима по умолчанию выбран `OpenAI Audio API`, потому что локальный `faster-whisper` на облачном CPU может быть медленным и тяжелым.

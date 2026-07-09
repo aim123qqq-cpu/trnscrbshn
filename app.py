@@ -27,8 +27,8 @@ except ImportError:  # pragma: no cover
 
 
 ROOT = Path(__file__).resolve().parent
-WORK_DIR = ROOT / "work" / "jobs"
-OUTPUT_DIR = ROOT / "outputs" / "jobs"
+WORK_DIR = Path(os.environ.get("WORK_DIR", str(ROOT / "work" / "jobs")))
+OUTPUT_DIR = Path(os.environ.get("OUTPUT_DIR", str(ROOT / "outputs" / "jobs")))
 ENV_FILES = [ROOT / ".env.local", ROOT / ".env"]
 SUPPORTED_OPENAI_AUDIO = {".flac", ".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".ogg", ".wav", ".webm"}
 
@@ -360,7 +360,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/":
-            self.send_html(INDEX_HTML)
+            self.send_html(render_index_html())
+        elif parsed.path == "/healthz":
+            self.send_json({"status": "ok"})
         elif parsed.path.startswith("/status/"):
             self.handle_status(parsed.path.rsplit("/", 1)[-1])
         elif parsed.path.startswith("/download/"):
@@ -1140,6 +1142,18 @@ DOCUMENT_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>{body}<w:sectPr/></w:body>
 </w:document>"""
+
+
+def render_index_html() -> str:
+    default_backend = os.environ.get("DEFAULT_BACKEND", "auto")
+    if default_backend not in {"auto", "local", "openai"}:
+        default_backend = "auto"
+    html_text = INDEX_HTML
+    for backend in ("auto", "local", "openai"):
+        marker = f'<option value="{backend}"'
+        replacement = marker + (" selected" if backend == default_backend else "")
+        html_text = html_text.replace(marker, replacement, 1)
+    return html_text
 
 
 def main() -> None:
