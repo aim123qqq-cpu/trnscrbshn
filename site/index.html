@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Personal Transcriber - локальный сервис для транскрибации встреч и генерации протоколов.">
+  <title>Personal Transcriber</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111411;
+      --surface: #181d19;
+      --panel: #f7fbf6;
+      --ink: #f4f8f3;
+      --ink-panel: #162015;
+      --muted: #aab7a8;
+      --muted-panel: #64715f;
+      --line: #313a31;
+      --line-panel: #d8e2d4;
+      --primary: #0d9488;
+      --primary-strong: #0f766e;
+      --accent: #ea580c;
+      --focus: #5eead4;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .36);
+      --radius: 8px;
+      --mono: "Cascadia Mono", Consolas, monospace;
+      --sans: "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100dvh;
+      font-family: var(--sans);
+      background:
+        linear-gradient(90deg, rgba(13, 148, 136, .11), transparent 38%),
+        linear-gradient(180deg, rgba(234, 88, 12, .08), transparent 48%),
+        var(--bg);
+      color: var(--ink);
+    }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid rgba(94, 234, 212, .78);
+      outline-offset: 3px;
+    }
+    .shell {
+      width: min(1120px, calc(100% - 40px));
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: 32px 0;
+      display: grid;
+      align-content: center;
+      gap: 24px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(94, 234, 212, .34);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: #0f1714;
+      color: var(--focus);
+      font: 800 14px var(--mono);
+    }
+    .repo {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 13px;
+      color: var(--muted);
+      text-decoration: none;
+      font: 700 13px var(--mono);
+      background: rgba(255, 255, 255, .03);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .hero, .panel {
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: clamp(26px, 5vw, 48px);
+      background: rgba(24, 29, 25, .92);
+      border: 1px solid var(--line);
+    }
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--focus);
+      font: 800 12px var(--mono);
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 11ch;
+      margin: 0 0 18px;
+      font-size: clamp(42px, 8vw, 88px);
+      line-height: .92;
+      letter-spacing: 0;
+    }
+    .lead {
+      max-width: 58ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.62;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .button {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      padding: 13px 17px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .button.secondary {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 255, 255, .04);
+    }
+    .panel {
+      padding: 22px;
+      background: var(--panel);
+      color: var(--ink-panel);
+      border: 1px solid var(--line-panel);
+      display: grid;
+      gap: 18px;
+    }
+    .panel h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+    .steps {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 12px;
+    }
+    .steps li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      color: var(--muted-panel);
+      line-height: 1.45;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: #e5f4ef;
+      color: var(--primary-strong);
+      font: 800 12px var(--mono);
+    }
+    code {
+      border-radius: 6px;
+      padding: 2px 5px;
+      background: #e5ece4;
+      color: #102019;
+      font-family: var(--mono);
+      font-size: .92em;
+    }
+    .note {
+      margin: 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line-panel);
+      color: var(--muted-panel);
+      line-height: 1.5;
+    }
+    .formats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 32px;
+    }
+    .pill {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .03);
+      font: 700 12px var(--mono);
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { max-width: 12ch; }
+    }
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 28px, 1120px); padding: 18px 0; }
+      header { align-items: stretch; }
+      .repo { width: 100%; justify-content: center; }
+      .actions { flex-direction: column; }
+      .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <span class="mark">PT</span>
+        <span>Personal Transcriber</span>
+      </div>
+      <a class="repo" href="https://github.com/aim123qqq-cpu/trnscrbshn">GitHub repository</a>
+    </header>
+
+    <section class="grid">
+      <div class="hero">
+        <p class="eyebrow">Локальный сервис для встреч</p>
+        <h1>Видео в протокол</h1>
+        <p class="lead">Загружаете запись встречи, получаете транскрипт, Markdown-протокол и DOCX. Обработка может идти локально через faster-whisper или через OpenAI API.</p>
+        <div class="actions">
+          <a class="button primary" href="https://github.com/aim123qqq-cpu/trnscrbshn/archive/refs/heads/main.zip">Скачать проект</a>
+          <a class="button secondary" href="https://github.com/aim123qqq-cpu/trnscrbshn#readme">Открыть README</a>
+        </div>
+        <div class="formats" aria-label="Форматы результата">
+          <span class="pill">TXT</span>
+          <span class="pill">Markdown</span>
+          <span class="pill">DOCX</span>
+          <span class="pill">local/API</span>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Как запустить</h2>
+        <ol class="steps">
+          <li><span class="num">01</span><span>Клонируйте репозиторий или скачайте архив с GitHub.</span></li>
+          <li><span class="num">02</span><span>Создайте окружение: <code>python -m venv .venv</code>.</span></li>
+          <li><span class="num">03</span><span>Поставьте зависимости: <code>pip install -r requirements.txt</code>.</span></li>
+          <li><span class="num">04</span><span>Запустите сервис: <code>python app.py</code>.</span></li>
+        </ol>
+        <p class="note">GitHub Pages показывает эту страницу. Сам транскрибатор запускается локально, потому что ему нужны Python, обработка файлов и приватный API-ключ.</p>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

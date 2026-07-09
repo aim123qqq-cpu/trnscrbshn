@@ -8,6 +8,8 @@
 - собирает протокол встречи через OpenAI Responses API;
 - сохраняет `transcript.txt`, `meeting_report.md` и `meeting_report.docx`.
 
+Публичная страница проекта на GitHub Pages: `https://aim123qqq-cpu.github.io/trnscrbshn/`
+
 ## Быстрый старт
 
 ```powershell
