@@ -356,7 +356,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={"REQUEST_METHOD": "POST"})
         file_item = form["file"] if "file" in form else None
-        if not file_item or not getattr(file_item, "filename", ""):
+        if file_item is None or not getattr(file_item, "filename", ""):
             self.send_error(HTTPStatus.BAD_REQUEST, "File is required")
             return
 
