@@ -46,14 +46,18 @@ python app.py
 
 Для онлайн-режима по умолчанию выбран `OpenAI Audio API`, потому что локальный `faster-whisper` на облачном CPU может быть медленным и тяжелым.
 
-## Бесплатный full online deploy на Hugging Face Spaces
+## Бесплатный static online deploy
 
-Если Render просит оплату, используйте Hugging Face Spaces:
+GitHub Pages уже публикует рабочую static-версию:
+
+`https://aim123qqq-cpu.github.io/trnscrbshn/`
+
+В static-версии транскрибация идет прямо в браузере через Transformers.js, без backend и без оплаты хостинга. Это медленнее, чем серверный режим, но не требует локальной установки.
+
+Если нужен Hugging Face:
 
 1. Создайте Space на Hugging Face.
-2. Выберите SDK: `Docker`.
-3. Подключите или импортируйте репозиторий `aim123qqq-cpu/trnscrbshn`.
-4. Для бесплатного режима оставьте `DEFAULT_BACKEND=local`.
-5. Если нужна OpenAI-сводка и API-транскрибация, добавьте secret `OPENAI_API_KEY` в Settings Space.
+2. Выберите SDK: `Static`.
+3. Загрузите содержимое папки `site/`.
 
-Dockerfile по умолчанию слушает порт `7860`, как ожидает Hugging Face Spaces. На бесплатном CPU первая обработка может идти долго, потому что модель Whisper скачивается и работает без GPU.
+Ограничение static-режима: нет приватного backend, очередей, серверного хранения и OpenAI-секретов. Все считается на устройстве пользователя.

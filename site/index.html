@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Personal Transcriber - локальный сервис для транскрибации встреч и генерации протоколов.">
+  <meta name="description" content="Static browser transcriber for meeting video and audio files.">
   <title>Personal Transcriber</title>
   <style>
     :root {
       color-scheme: dark;
       --bg: #111411;
       --surface: #181d19;
+      --surface-2: #20281f;
       --panel: #f7fbf6;
+      --panel-2: #eef5ed;
       --ink: #f4f8f3;
       --ink-panel: #162015;
       --muted: #aab7a8;
@@ -20,6 +22,7 @@
       --primary: #0d9488;
       --primary-strong: #0f766e;
       --accent: #ea580c;
+      --danger: #dc2626;
       --focus: #5eead4;
       --shadow: 0 24px 70px rgba(0, 0, 0, .36);
       --radius: 8px;
@@ -38,19 +41,19 @@
         var(--bg);
       color: var(--ink);
     }
-    a { color: inherit; }
-    a:focus-visible, button:focus-visible {
+    a, button, input, select { touch-action: manipulation; }
+    button, input, select, textarea { font: inherit; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
       outline: 3px solid rgba(94, 234, 212, .78);
       outline-offset: 3px;
     }
     .shell {
-      width: min(1120px, calc(100% - 40px));
+      width: min(1160px, calc(100% - 36px));
       min-height: 100dvh;
       margin: 0 auto;
-      padding: 32px 0;
+      padding: 28px 0;
       display: grid;
-      align-content: center;
-      gap: 24px;
+      gap: 18px;
     }
     header {
       display: flex;
@@ -91,16 +94,16 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+      grid-template-columns: minmax(0, .92fr) minmax(320px, 1.08fr);
       gap: 18px;
       align-items: stretch;
     }
-    .hero, .panel {
+    .hero, .tool, .results {
       border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
     .hero {
-      padding: clamp(26px, 5vw, 48px);
+      padding: clamp(24px, 4vw, 44px);
       background: rgba(24, 29, 25, .92);
       border: 1px solid var(--line);
     }
@@ -113,100 +116,22 @@
     h1 {
       max-width: 11ch;
       margin: 0 0 18px;
-      font-size: clamp(42px, 8vw, 88px);
-      line-height: .92;
+      font-size: clamp(40px, 7vw, 78px);
+      line-height: .94;
       letter-spacing: 0;
     }
     .lead {
       max-width: 58ch;
       margin: 0;
       color: var(--muted);
-      font-size: 18px;
+      font-size: 17px;
       line-height: 1.62;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 28px;
-    }
-    .button {
-      min-height: 48px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius);
-      padding: 13px 17px;
-      font-weight: 800;
-      text-decoration: none;
-    }
-    .button.primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .button.secondary {
-      border: 1px solid var(--line);
-      color: var(--ink);
-      background: rgba(255, 255, 255, .04);
-    }
-    .panel {
-      padding: 22px;
-      background: var(--panel);
-      color: var(--ink-panel);
-      border: 1px solid var(--line-panel);
-      display: grid;
-      gap: 18px;
-    }
-    .panel h2 {
-      margin: 0;
-      font-size: 24px;
-      line-height: 1.15;
-    }
-    .steps {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 12px;
-    }
-    .steps li {
-      display: grid;
-      grid-template-columns: 34px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-      color: var(--muted-panel);
-      line-height: 1.45;
-    }
-    .num {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius);
-      display: grid;
-      place-items: center;
-      background: #e5f4ef;
-      color: var(--primary-strong);
-      font: 800 12px var(--mono);
-    }
-    code {
-      border-radius: 6px;
-      padding: 2px 5px;
-      background: #e5ece4;
-      color: #102019;
-      font-family: var(--mono);
-      font-size: .92em;
-    }
-    .note {
-      margin: 0;
-      padding-top: 16px;
-      border-top: 1px solid var(--line-panel);
-      color: var(--muted-panel);
-      line-height: 1.5;
     }
     .formats {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 32px;
+      margin-top: 30px;
     }
     .pill {
       min-height: 34px;
@@ -219,16 +144,120 @@
       background: rgba(255, 255, 255, .03);
       font: 700 12px var(--mono);
     }
-    @media (max-width: 860px) {
-      .grid { grid-template-columns: 1fr; }
-      h1 { max-width: 12ch; }
+    .tool {
+      padding: 22px;
+      background: var(--panel);
+      color: var(--ink-panel);
+      border: 1px solid var(--line-panel);
+      display: grid;
+      gap: 16px;
     }
-    @media (max-width: 520px) {
-      .shell { width: min(100% - 28px, 1120px); padding: 18px 0; }
-      header { align-items: stretch; }
-      .repo { width: 100%; justify-content: center; }
-      .actions { flex-direction: column; }
-      .button { width: 100%; }
+    .tool h2, .results h2 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.14;
+    }
+    .note {
+      margin: 0;
+      color: var(--muted-panel);
+      line-height: 1.5;
+    }
+    .field {
+      display: grid;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    input[type=file], select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line-panel);
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink-panel);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    button {
+      min-height: 48px;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 13px 18px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    button:hover { background: var(--primary-strong); }
+    button:disabled { opacity: .55; cursor: wait; }
+    .status {
+      border: 1px solid var(--line-panel);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: var(--panel-2);
+      color: var(--ink-panel);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .progress {
+      height: 9px;
+      border-radius: 999px;
+      background: #dfe8dd;
+      overflow: hidden;
+    }
+    .bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--primary);
+      transition: width .2s ease;
+    }
+    .results {
+      grid-column: 1 / -1;
+      padding: 22px;
+      background: var(--panel);
+      color: var(--ink-panel);
+      border: 1px solid var(--line-panel);
+      display: grid;
+      gap: 14px;
+    }
+    .downloads {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .downloads a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius);
+      border: 1px solid var(--line-panel);
+      padding: 10px 12px;
+      color: var(--primary-strong);
+      text-decoration: none;
+      font-weight: 850;
+      background: #fff;
+    }
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      border: 1px solid var(--line-panel);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fff;
+      color: var(--ink-panel);
+      line-height: 1.5;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    @media (max-width: 880px) {
+      .grid, .row { grid-template-columns: 1fr; }
+      h1 { max-width: 12ch; }
     }
   </style>
 </head>
@@ -244,32 +273,214 @@
 
     <section class="grid">
       <div class="hero">
-        <p class="eyebrow">Локальный сервис для встреч</p>
-        <h1>Видео в протокол</h1>
-        <p class="lead">Загружаете запись встречи, получаете транскрипт, Markdown-протокол и DOCX. Обработка может идти локально через faster-whisper или через OpenAI API.</p>
-        <div class="actions">
-          <a class="button primary" href="https://github.com/aim123qqq-cpu/trnscrbshn/archive/refs/heads/main.zip">Скачать проект</a>
-          <a class="button secondary" href="https://github.com/aim123qqq-cpu/trnscrbshn#readme">Открыть README</a>
-        </div>
+        <p class="eyebrow">Static, no backend, no payment</p>
+        <h1>Видео в текст</h1>
+        <p class="lead">Загрузите запись встречи. Распознавание идет прямо в браузере через Transformers.js и Whisper. Файл не отправляется на сервер.</p>
         <div class="formats" aria-label="Форматы результата">
           <span class="pill">TXT</span>
           <span class="pill">Markdown</span>
           <span class="pill">DOCX</span>
-          <span class="pill">local/API</span>
+          <span class="pill">browser-side</span>
         </div>
       </div>
 
-      <aside class="panel">
-        <h2>Как запустить</h2>
-        <ol class="steps">
-          <li><span class="num">01</span><span>Клонируйте репозиторий или скачайте архив с GitHub.</span></li>
-          <li><span class="num">02</span><span>Создайте окружение: <code>python -m venv .venv</code>.</span></li>
-          <li><span class="num">03</span><span>Поставьте зависимости: <code>pip install -r requirements.txt</code>.</span></li>
-          <li><span class="num">04</span><span>Запустите сервис: <code>python app.py</code>.</span></li>
-        </ol>
-        <p class="note">GitHub Pages показывает эту страницу. Сам транскрибатор запускается локально, потому что ему нужны Python, обработка файлов и приватный API-ключ.</p>
-      </aside>
+      <form class="tool" id="tool">
+        <h2>Новая обработка</h2>
+        <p class="note">Первый запуск скачает модель. Лучше начать с короткого файла до 5-10 минут; длинные встречи могут занять много времени и памяти.</p>
+        <label class="field">Видео или аудио
+          <input id="file" type="file" accept="audio/*,video/*,.webm,.mp4,.m4a,.mp3,.wav,.ogg,.flac" required>
+        </label>
+        <div class="row">
+          <label class="field">Модель
+            <select id="model">
+              <option value="Xenova/whisper-tiny">whisper-tiny multilingual</option>
+              <option value="Xenova/whisper-base">whisper-base multilingual</option>
+            </select>
+          </label>
+          <label class="field">Язык
+            <select id="language">
+              <option value="russian">Русский</option>
+              <option value="">Авто</option>
+              <option value="english">English</option>
+            </select>
+          </label>
+        </div>
+        <button id="run" type="submit">Запустить в браузере</button>
+        <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+        <div class="status" id="status">Готов к загрузке файла.</div>
+      </form>
+
+      <section class="results" aria-live="polite">
+        <h2>Результат</h2>
+        <div class="downloads" id="downloads"></div>
+        <textarea id="output" spellcheck="false" placeholder="Здесь появится транскрипт и протокол."></textarea>
+      </section>
     </section>
   </main>
+
+  <script type="module">
+    import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+    import JSZip from "https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm";
+
+    env.allowLocalModels = false;
+
+    const form = document.querySelector("#tool");
+    const fileInput = document.querySelector("#file");
+    const modelInput = document.querySelector("#model");
+    const languageInput = document.querySelector("#language");
+    const runButton = document.querySelector("#run");
+    const statusBox = document.querySelector("#status");
+    const output = document.querySelector("#output");
+    const downloads = document.querySelector("#downloads");
+    const bar = document.querySelector("#bar");
+    const pipelines = new Map();
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      runButton.disabled = true;
+      downloads.innerHTML = "";
+      output.value = "";
+      setStatus("Готовлю модель...", 5);
+
+      try {
+        const model = modelInput.value;
+        const transcriber = await getTranscriber(model);
+        const url = URL.createObjectURL(file);
+        setStatus("Распознаю речь. Не закрывайте вкладку.", 45);
+        let result;
+        try {
+          result = await transcriber(url, {
+            chunk_length_s: 30,
+            stride_length_s: 5,
+            language: languageInput.value || undefined,
+            task: "transcribe",
+          });
+        } catch (_error) {
+          result = await transcriber(url, {
+            chunk_length_s: 30,
+            stride_length_s: 5,
+            task: "transcribe",
+          });
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+
+        const transcript = normalizeText(result?.text || "");
+        if (!transcript) throw new Error("Модель вернула пустой текст.");
+        const report = buildReport(transcript, file.name);
+        const files = await buildDownloads(transcript, report);
+        renderDownloads(files);
+        output.value = report;
+        setStatus("Готово. Файлы можно скачать ниже.", 100);
+      } catch (error) {
+        setStatus(`Ошибка: ${error.message || error}`, 100);
+      } finally {
+        runButton.disabled = false;
+      }
+    });
+
+    async function getTranscriber(model) {
+      if (pipelines.has(model)) return pipelines.get(model);
+      const instance = await pipeline("automatic-speech-recognition", model, {
+        dtype: "q8",
+        progress_callback: (progress) => {
+          const label = progress.file ? `Скачиваю ${progress.file}` : "Загружаю модель";
+          const value = progress.progress ? Math.min(35, Math.round(progress.progress * .35)) : 12;
+          setStatus(label, value);
+        },
+      });
+      pipelines.set(model, instance);
+      return instance;
+    }
+
+    function normalizeText(text) {
+      return String(text).replace(/\s+/g, " ").trim();
+    }
+
+    function buildReport(transcript, filename) {
+      return [
+        "# Протокол встречи",
+        "",
+        "## Краткое резюме",
+        "",
+        "Static-версия без серверного LLM не создает полноценную AI-сводку. Ниже сохранен транскрипт, который можно использовать для ручного протокола.",
+        "",
+        "## Источник",
+        "",
+        `Файл: ${filename}`,
+        "",
+        "## Договоренности",
+        "",
+        "- не указано",
+        "",
+        "## Задачи",
+        "",
+        "| Задача | Ответственный | Срок | Статус/контекст |",
+        "| --- | --- | --- | --- |",
+        "| не указано | не указано | не указано | не указано |",
+        "",
+        "## Вопросы и риски",
+        "",
+        "- не указано",
+        "",
+        "## Полный транскрипт",
+        "",
+        transcript,
+      ].join("\\n");
+    }
+
+    async function buildDownloads(transcript, report) {
+      return [
+        makeFile("transcript.txt", transcript, "text/plain;charset=utf-8"),
+        makeFile("meeting_report.md", report, "text/markdown;charset=utf-8"),
+        await makeDocx("meeting_report.docx", report),
+      ];
+    }
+
+    function makeFile(name, content, type) {
+      const blob = new Blob([content], { type });
+      return { name, url: URL.createObjectURL(blob) };
+    }
+
+    async function makeDocx(name, markdown) {
+      const zip = new JSZip();
+      const lines = markdown.split("\\n").map((line) => line.replace(/^#+\\s*/, ""));
+      const body = lines.map((line) => `<w:p><w:r><w:t xml:space="preserve">${escapeXml(line)}</w:t></w:r></w:p>`).join("");
+      zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
+      zip.folder("_rels").file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+      zip.folder("word").folder("_rels").file("document.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
+      zip.folder("word").file("document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr/></w:body></w:document>`);
+      const blob = await zip.generateAsync({ type: "blob" });
+      return { name, url: URL.createObjectURL(blob) };
+    }
+
+    function renderDownloads(files) {
+      downloads.innerHTML = "";
+      for (const file of files) {
+        const link = document.createElement("a");
+        link.href = file.url;
+        link.download = file.name;
+        link.textContent = file.name;
+        downloads.appendChild(link);
+      }
+    }
+
+    function setStatus(text, progress) {
+      statusBox.textContent = text;
+      bar.style.width = `${Math.max(0, Math.min(100, progress || 0))}%`;
+    }
+
+    function escapeXml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&apos;");
+    }
+  </script>
 </body>
 </html>
